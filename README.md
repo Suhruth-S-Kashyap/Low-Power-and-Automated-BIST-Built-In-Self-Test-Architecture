@@ -1,10 +1,13 @@
 # Low-Power-and-Automated-BIST-Built-In-Self-Test-Architecture
-This project presents the design and implementation of a “low-power Built-In Self-Test (BIST) architecture” using Cadence Virtuoso. The main focus is on optimizing power consumption and automation.
+This project presents the design and VLSI implementation of a “low-power Built-In Self-Test (BIST) architecture” using Cadence Virtuoso. The main focus is on optimizing power consumption and automation.
 
 ## Introduction
 Built-In Self-Test (BIST) is a design technique that enables a system or circuit to automatically perform diagnostic tests on itself. Instead of relying on external testing tools or human intervention, a BIST enabled system generates its own test patterns, runs tests, and evaluates the results internally. This not only reduces the cost and time required for testing but also improves the reliability of the device by enabling continuous self-checks throughout its operational life.
+
 By combining power gating with optimized test patterns and testing, we can ensure that only the parts of the circuit that are actively involved in the test are powered on, while the idle parts are powered off or put into a low-power state. This significantly reduces power consumption during testing without compromising the accuracy of the test. Also, the test patterns are generated only in testing mode i.e., automated testing of the circuit that generates test patterns only when a fault is detected. 
+
 o Power Gating: Think of this as turning off lights in a room you’re not using. In BIST, power gating involves shutting off power to parts of the system that aren’t actively being tested. Fine Grain Power Gating (FGPG) is the process of adding a sleep transistor to every cell that is to be turned off.
+
 o Automated Testing: Automated testing of the circuit that generates test patterns only when a fault is detected.
 
 ## BIST Architecture
@@ -25,14 +28,16 @@ Isolation circuitry: It is used to isolate the normal operation of the DUT from 
 
 ## Implementation of 2 I/P and 3 I/P NAND Gates
 
-Schematic of 2-input NAND gate
+## Schematic of 2-input NAND gate
 <img width="684" height="253" alt="image" src="https://github.com/user-attachments/assets/d9639d4c-2485-4d77-a378-c1a28ad0ce12" />
 
-Schematic of 3-input NAND gate
+## Schematic of 3-input NAND gate
 <img width="698" height="288" alt="image" src="https://github.com/user-attachments/assets/f2e027f0-a5cb-4922-bd0c-f98373cede22" />
 
 The sleepin transistor controls the leakage currents by enabling sleep mode at idle. It cuts off the power supply when it is not needed which reduces dynamic power consumption (during active switching).
+
 When active: The sleepin transistor is turned off to high resistance state, allowing the power gating transistor to completely isolate the block from the power supply.
+
 When in sleep mode: The sleep-in transistor is turned on, creating a path to ground for the leakage currents, therefore reducing the leakage power. 
 
 ## D Flip-Flop using 2 I/P and 3 I/P NAND gates
@@ -40,11 +45,12 @@ When in sleep mode: The sleep-in transistor is turned on, creating a path to gro
 
 ## 4-bit LFSR (using DFF) as TPG
 <img width="655" height="288" alt="image" src="https://github.com/user-attachments/assets/514d9d63-9acd-4db0-a6a3-c756b39da02e" />
+
 LFSR block is used to generate random sequence according to the feedback function. The standard polynomial taken is 1+x3+x4. Generated random sequence is provided as the input to the DUT. 
 
 ## Hamming Encoder and Decoder Circuit as DUT
 
-Hamming Encoder (Parity Bit Generator) Schematic
+## Hamming Encoder (Parity Bit Generator) Schematic
 <img width="753" height="342" alt="image" src="https://github.com/user-attachments/assets/94195657-8ddc-4f2c-8a67-99605701d3da" />
 
 Three parity bits are mapped and added to the data block. In the configuration, each circle has a parity bit chosen so that the number of bits in each circle is odd. P5 = D1^D2^ D4, P6 = D2^ D3^D4,P7=D1^D3^D4.
@@ -52,12 +58,12 @@ Once the parity bits are generated, message bits along with parity bits are give
 
 ## Hamming Decoder Schematic: Hamming Decoder consists of Error Bit Checker and Error Bit Corrector Circuits.
 
-Error Bit Checker Schematic
+## Error Bit Checker Schematic
 <img width="730" height="382" alt="image" src="https://github.com/user-attachments/assets/9cb3c980-d7ea-499d-a469-cceea83830c3" />
 
 Error bit checker unit is used to detect error in the 7-bit word. When a received 7-bit word is transmitted, the receiver recalculates the parity bits and compares them with the received parity bits. If no errors occurred, the syndrome will be 000, which indicates that all parity checks are satisfied. If there is an error, the syndrome will be a non-zero binary value. E1 = D1^D2^D4^P5,E2=D2^D3^D4^P6,E3=D1^D3^D4^P7.
 
-Error Bit Corrector Schematic
+## Error Bit Corrector Schematic
 <img width="704" height="381" alt="image" src="https://github.com/user-attachments/assets/7305b180-62a0-4179-8791-582e2e9a8abf" />
 
 Error bit correction unit is used to correct the detected error. If the syndrome is 000, no error is detected. If the syndrome is non-zero, the syndrome vector indicates the position of the erroneous bit. Once the erroneous bit is identified using the syndrome, it can be corrected by flipping the bit at that position. O1=E1.NOT(E2).E3^D1, O2=E1.E2.NOT(E3)^D2, O3=NOT(E1).E2.E3^D3,O4=E1.E2.E3^D4.
@@ -70,28 +76,33 @@ Error bit correction unit is used to correct the detected error. If the syndrome
 
 ## Results and Discussions
 
-Test Pattern Generator (LFSR) Waveform using the standard polynomial 1+x3+x4
+## Test Pattern Generator (LFSR) Waveform using the standard polynomial 1+x3+x4
 <img width="753" height="294" alt="image" src="https://github.com/user-attachments/assets/199b3427-2e4f-4552-971a-2030fe789c8c" />
 
 The test pattern sequence starts with 1111 and does not contain an all zero state. There are 16 different combinations from the 4- bit LFSR.
+
 /net023 is the clock waveform. It is of 20ns period and 10ns pulse width.
+
 q1, q2, q3 and q4 are the output from the 4-bit LFSR according to the applied polynomial.
+
 The dynamic power of LFSR using FGPG is 1.58mW. This reduces the power consumed compared to a conventional LFSR.
 
-TPG waveform without any fault indicating that no test patterns are generated during normal mode as there are no faults in DUT
+## TPG waveform without any fault indicating that no test patterns are generated during normal mode as there are no faults in DUT
 <img width="752" height="243" alt="image" src="https://github.com/user-attachments/assets/03444a8b-9092-425c-b170-eca81b6f9c67" />
 
-Normal Hamming encoding and decoding architecture waveform with O2 message bit correctly decoded after inverting D2 in the channel
+## Normal Hamming encoding and decoding architecture waveform with O2 message bit correctly decoded after inverting D2 in the channel
 <img width="757" height="202" alt="image" src="https://github.com/user-attachments/assets/18be101b-ef95-487e-a6b7-1683da2a2b13" />
 
-Hamming encoding and decoding architecture waveform with stuck at 1 fault injected in D1 message bit
+## Hamming encoding and decoding architecture waveform with stuck at 1 fault injected in D1 message bit
 <img width="752" height="200" alt="image" src="https://github.com/user-attachments/assets/5926ca4f-3444-42ae-b682-58f502aa6d42" />
 
-ORA Control_out signal with fault
+## ORA Control_out signal with fault
 <img width="745" height="278" alt="image" src="https://github.com/user-attachments/assets/ad5afd42-d0a2-46d9-a777-0e2aa9d48c8e" />
 
 /S1 and /S2 indicate the select lines of 4:1 MUX.
+
 /ORA_out is the ORA output after comparing faulty and correct bits.
+
 /net020 is the control signal from the OR gate of ORA to the 2:1 MUX controlling the clock signal of TPG(LFSR).
 
 ## Power Comparison Table
